@@ -35,7 +35,7 @@ $page = view_include('theme/v_main.php', array('title' => $title,
 
 //Вывод
 echo $page;
-
+//
 ?>
 
 
