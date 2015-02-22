@@ -1,4 +1,3 @@
-
 <h1>Новая статья</h1>
 <form action="<?=$cNew?>" method="post">
     <label for="title">Название:</label><br>

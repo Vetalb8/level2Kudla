@@ -1,44 +1,44 @@
 <?php
-include_once('view.php');
-include_once('m_startup.php');
-include_once('m_model.php');
+//Подключение классов
+include_once('m_article.class.php');
+include_once('m_template.class.php');
+include_once('m_connectDB.class.php');
+include_once('m_header.class.php');
+
+
 
 //Установка параметров, подключение к БД, запуск сессии
-startup();
+$connectDB = new ConnectDB('localhost','root','root','news');
 
 //Извлечение статей
-$articles = articles_all();
+$articleClass = new Article();
+$articles = $articleClass->articles_all($connectDB->link);
 
 foreach($articles as $key => $article){
-    $articles[$key] = $article;
+    $articles[$key]['intro'] = $articleClass->articles_intro($article);
 }
 
 //Кодировка
-header('Content-type: text/html; charset=utf-8');
+$coding = new Header();
 
 // Внутренний шаблон ============
+$temlate = new Template();
 //ссылка на создание новой статьи
 $cNew ='c_new.php';
 //ссылки на статьи
 $cArticle = 'c_article.php';
-$content = view_include('theme/v_index.php', array('articles' => $articles,
-                                                    'cNew' => $cNew,
-                                                    'cArticle' => $cArticle));
-
+$content = $temlate->view_include('theme/v_index.php', array('articles' => $articles,
+    'cNew' => $cNew,
+    'cArticle' => $cArticle));
 
 // Внешний шаблон ==============
 $title = 'Новостная лента';
 $active_item = 'index';
-$page = view_include('theme/v_main.php', array('title' => $title,
+$page = $temlate->view_include('theme/v_main.php', array('title' => $title,
     'content' => $content,
     'active_item' => $active_item));
 
 //Вывод
-echo $page;
-//
+$temlate->showTamplate($page);
+
 ?>
-
-
-
-
-

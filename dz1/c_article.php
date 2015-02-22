@@ -1,10 +1,14 @@
 <?php
-include_once('view.php');
-include_once('m_startup.php');
-include_once('m_model.php');
+//Подключение классов
+include_once('m_article.class.php');
+include_once('m_template.class.php');
+include_once('m_connectDB.class.php');
+include_once('m_header.class.php');
 
 //Установка параметров, подключение к БД, запуск сессии
-startup();
+$connectDB = new ConnectDB('localhost','root','root','news');
+
+
 if(isset($_GET['id'])){
     $id = $_GET['id'];
 }else{
@@ -12,24 +16,25 @@ if(isset($_GET['id'])){
 }
 
 //Извлечение статей
-$article = article_get($id);
+$articleClass = new Article();
+$article = $articleClass->article_get($id, $connectDB->link);
 
 //Кодировка
-header('Content-type: text/html; charset=utf-8');
+$coding = new Header();
 
 // Внутренний шаблон ============
-
+$temlate = new Template();
 //ссылки на редактирование статей
-$content = view_include('theme/v_article.php', array('article' => $article));
+$content = $temlate->view_include('theme/v_article.php', array('article' => $article));
 
 
 // Внешний шаблон ==============
 $title = 'Новостная лента';
 $active_item = '';
-$page = view_include('theme/v_main.php', array('title' => $title,
+$page = $temlate->view_include('theme/v_main.php', array('title' => $title,
     'content' => $content,
     'active_item' => $active_item));
 
 //Вывод
-echo $page;
+$temlate->showTamplate($page);
 ?>

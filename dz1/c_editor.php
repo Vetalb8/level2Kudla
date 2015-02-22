@@ -1,39 +1,37 @@
 <?php
-include_once('view.php');
-include_once('m_startup.php');
-include_once('m_model.php');
+//Подключение классов
+include_once('m_article.class.php');
+include_once('m_template.class.php');
+include_once('m_connectDB.class.php');
+include_once('m_header.class.php');
 
 //Установка параметров, подключение к БД, запуск сессии
-startup();
+$connectDB = new ConnectDB('localhost','root','root','news');
 
 //Извлечение статей
-$articles = articles_all();
+$articleClass = new Article();
+$articles = $articleClass->articles_all($connectDB->link);
 
 //Кодировка
-header('Content-type: text/html; charset=utf-8');
+$coding = new Header();
 
 
 // Внутренний шаблон ============
-
+$temlate = new Template();
 //ссылки на редактирование статей
 $cEdit = 'c_edit.php';
-$content = view_include('theme/v_editor.php', array('articles' => $articles,
+$content = $temlate->view_include('theme/v_editor.php', array('articles' => $articles,
     'cEdit' => $cEdit));
 
 
 // Внешний шаблон ==============
 $title = 'Новостная лента';
 $active_item = 'editor';
-$page = view_include('theme/v_main.php', array('title' => $title,
+$page = $temlate->view_include('theme/v_main.php', array('title' => $title,
     'content' => $content,
     'active_item' => $active_item));
 
 //Вывод
-echo $page;
+$temlate->showTamplate($page);
 
 ?>
-
-
-
-
-

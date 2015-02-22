@@ -1,15 +1,19 @@
 <?php
-include_once('view.php');
-include_once('m_startup.php');
-include_once('m_model.php');
+//Подключение классов
+include_once('m_article.class.php');
+include_once('m_template.class.php');
+include_once('m_connectDB.class.php');
+include_once('m_header.class.php');
 
 //Установка параметров, подключение к БД, запуск сессии
-startup();
+$connectDB = new ConnectDB('localhost','root','root','news');
+//определение объекта класса
+$articleClass = new Article();
 
 // Обработка отправки формы
 if(isset($_POST['submit'])){
 
-    if(articles_edit($_POST['id'], $_POST['title'], $_POST['content'])){
+    if($articleClass->articles_edit($_POST['id'], $_POST['title'], $_POST['content'], $connectDB->link)){
         header('Location: c_editor.php');
         die();
     }
@@ -17,12 +21,12 @@ if(isset($_POST['submit'])){
     $title = $_POST['title'];
     $content = $_POST['content'];
 }elseif(isset($_POST['delete'])){
-    if (articles_delete($_POST['id'])){
+    if ($articleClass->articles_delete($_POST['id'], $connectDB->link)){
         header('Location: c_editor.php');
         die();
     }
 }else{
-    $art = article_get($_GET['id']);
+    $art = $articleClass->article_get(($_GET['id']), $connectDB->link);
     $id = $_GET['id'];
     $title = $art['title'];
     $content = $art['content'];
@@ -30,25 +34,25 @@ if(isset($_POST['submit'])){
 
 
 //Кодировка
-header('Content-type: text/html; charset=utf-8');
+$coding = new Header();
 
 // Внутренний шаблон ============
-
+$temlate = new Template();
 //ссылки на редактирование статей
 $cEdit = 'c_edit.php';
-$content = view_include('theme/v_edit.php', array('title' => $title,
+$content = $temlate->view_include('theme/v_edit.php', array('title' => $title,
     'cEdit' => $cEdit,
     'content' => $content,
     'id' => $id));
 
 
 // Внешний шаблон ==============
-$title = 'PHP. Уровень 2';
+$title = 'Новостная лента';
 $active_item = '';
-$page = view_include('theme/v_main.php', array('title' => $title,
+$page = $temlate->view_include('theme/v_main.php', array('title' => $title,
     'content' => $content,
     'active_item' => $active_item));
 
 //Вывод
-echo $page;
+$temlate->showTamplate($page);
 ?>
