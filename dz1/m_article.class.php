@@ -1,5 +1,5 @@
 <?php
-require 'm_article.interface.php';
+require_once __DIR__ . '/m_article.interface.php';
 
 class Article implements IArticle{
     // Список всех статей

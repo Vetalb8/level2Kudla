@@ -1,9 +1,9 @@
 <?php
 //Подключение классов
-include_once('m_article.class.php');
-include_once('m_template.class.php');
-include_once('m_connectDB.class.php');
-include_once('m_header.class.php');
+include_once __DIR__ . '/m_article.class.php';
+include_once __DIR__ . '/m_template.class.php';
+include_once __DIR__ . '/m_connectDB.class.php';
+include_once __DIR__ . '/m_header.class.php';
 
 //Установка параметров, подключение к БД, запуск сессии
 $connectDB = new ConnectDB('localhost','root','root','news');
