@@ -1,2 +1,0 @@
-<h3><?=$article['title']?></h3>
-<p><?=$article['content']?></p>
