@@ -6,9 +6,9 @@ class DB
     {
         mysql_connect('localhost', 'root', 'root');
         mysql_select_db('news');
-        
+
     }
-    
+
     public function queryAll($sql, $class = 'stdClass' )
     {
         mysql_query("SET NAMES utf8");
@@ -20,10 +20,9 @@ class DB
         while($row = mysql_fetch_object($res, $class)){
             $ret[] = $row;
         }
-        
         return $ret;
     }
-    
+
     public function queryOne($sql, $class = 'stdClass')
     {
         return $this->queryAll($sql, $class)[0];
@@ -51,5 +50,10 @@ class DB
             return  false;
         }
         return true;
+    }
+
+    public function queryDelete($sql)
+    {
+        return $this->queryUpdate($sql);
     }
 }

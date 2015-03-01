@@ -1,7 +1,7 @@
 <?php
 
-abstract class AbstractModel {
-    
+abstract class AbstractModel implements IModel {
+
     protected static $table;
     protected static $class;
 
@@ -20,27 +20,35 @@ abstract class AbstractModel {
     }
 
     public static function addNew($title, $text)
-    {   
+    {
         $db = new DB;
         $sql = "INSERT INTO " . static::$table . " (title, text)
                         VALUES ('$title', '$text')";
-    
+
         return $db->queryNew($sql);
     }
 
     public static function updateNews($id, $title, $text)
-    {   
+    {
         //Проверка
         //if (!$id)
-            //return false;
+        //return false;
         //if ($title == '')
-            //return false;
+        //return false;
 
         $db = new DB;
         $sql = "UPDATE " . static::$table . " SET title = '$title', text = '$text'
                         WHERE id = '$id'";
 
         return $db->queryUpdate($sql);
+    }
+    
+    public static function deleteNews($id)
+    {
+        $db = new DB;
+        $sql = "DELETE FROM " . static::$table . " WHERE id = '$id'";
+        
+        return $db->queryDelete($sql);
     }
 
     public static function IsPost(){

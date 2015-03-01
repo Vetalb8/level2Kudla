@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/models/autoload.php";
+require_once __DIR__ . "/autoload.php";
 
 
 
