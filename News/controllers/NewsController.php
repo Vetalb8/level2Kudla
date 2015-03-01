@@ -18,7 +18,7 @@ class NewsController
         $item = News::getOne($id);
         $view = new View();
         
-        $view->assign('item', $item);
+        $view->item = $item;
         $view->display('news/one.php');
     }
 
@@ -26,21 +26,22 @@ class NewsController
     {
         if(News::IsPost()){
             if(empty($_POST['title'])){
-                $newText = $_POST['text'];
+                $content = array( 'title' => '', 'text' => $_POST['text']);
                 echo "Введите заголовок новости";
             }else{
                 if(News::addNew($_POST['title'], $_POST['text'])){
                     header('Location: index.php?ctrl=AdminNews&act=All');
                 }
-                $newTitle = $_POST['title'];
-                $newText = $_POST['text'];
+                $content = array( 'title' => $_POST['title'], 'text' => $_POST['text']);
             }
         }else{
-            $newTitle = '';
-            $newText = '';
+            $content = array( 'title' => '', 'text' => '');
         }
-
-        include __DIR__ . '/../views/adminnews/new.php';
+        
+        
+        $view = new View();
+        $view->content = $content;
+        $view->display('adminnews/new.php');
     }
 
     public function actionUpdate()
@@ -48,10 +49,6 @@ class NewsController
         if(News::IsGet()){
             $id = $_GET['id'];
             $item = News::getOne($id);
-
-            $editId = $item->id;
-            $editTitle = $item->title;
-            $editText = $item->text;
         }
 
         if(News::IsPost()){
@@ -60,9 +57,9 @@ class NewsController
                     header('Location: index.php?ctrl=AdminNews&act=All');
                     die();
                 }
-                $editId = $_POST['id'];
-                $editTitle = $_POST['title'];
-                $editText = $_POST['text'];
+                $item->id = $_POST['id'];
+                $item->title  = $_POST['title'];
+                $item->text = $_POST['text'];
             }elseif(isset($_POST['delete'])) {
                 if(News::deleteNews($_POST['id'])){
                     header('Location: index.php?ctrl=AdminNews&act=All');
@@ -70,6 +67,8 @@ class NewsController
                 }
             }
         }
-        include __DIR__ . '/../views/adminnews/update.php';
+        $view = new View();
+        $view->item = $item;
+        $view->display('adminnews/update.php');
     }
 }
