@@ -19,6 +19,7 @@ class DB
 
     public function query($sql, $params = [])
     {
+        
         // подгатавливаем запрос
         $sth = $this->dbh->prepare($sql);
         // выполнить запрос с указ параметрами

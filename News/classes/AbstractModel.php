@@ -35,6 +35,18 @@ abstract class AbstractModel
         $db->query('SET NAMES utf8');
         return $db->query($sql, [':id' => $id ])[0];
     }
+    
+    public static function findByColumn($column, $value)
+    {
+        $class = get_called_class();
+        $sql = "SELECT * FROM " . static::$table . ' WHERE  :column = :value';
+        //echo $sql;die();
+        $db = new DB();
+        $db->setClassName($class);
+        $db->query('SET NAMES utf8');
+        return $db->query($sql, [':column' => $column, ':value' => $value]);
+        
+    }
 
     public function insert()
     {
@@ -51,7 +63,7 @@ abstract class AbstractModel
             (' . implode(', ', array_keys($data)). ')
             ';
 
-        echo "$sql";die();
+        //echo "$sql";die();
         /*
         echo "<pre>";
         var_dump($data);
@@ -60,7 +72,7 @@ abstract class AbstractModel
         */
 
         $db = new DB();
-        $db->execute($sql, $data);
+        return $db->execute($sql, $data);
     }
 
     public function update()
@@ -78,7 +90,7 @@ abstract class AbstractModel
                 WHERE id = :id";
 
         $db = new DB();
-        $db->execute($sql, $data);
+        return $db->execute($sql, $data);
     }
 
     public function delete()
@@ -93,7 +105,7 @@ abstract class AbstractModel
                 WHERE id = :id";
 
         $db = new DB();
-        $db->execute($sql, $data);
+        return $db->execute($sql, $data);
     }
 
     public static function IsPost(){
