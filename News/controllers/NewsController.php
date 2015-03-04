@@ -4,7 +4,7 @@ class NewsController
 {
     public function actionAll()
     {
-        $news = News::getAll();
+        $news = NewsModel::findAll();
         $view = new View();
 
         //$view->assign('items', $news);
@@ -15,30 +15,38 @@ class NewsController
     public function actionOne()
     {
         $id = $_GET['id'];
-        $item = News::getOne($id);
+        $item = NewsModel::findOneByPk($id);
         $view = new View();
-        
+
         $view->item = $item;
         $view->display('news/one.php');
     }
 
     public function actionNew()
     {
-        if(News::IsPost()){
-            if(empty($_POST['title'])){
-                $content = array( 'title' => '', 'text' => $_POST['text']);
+        $article = new NewsModel();
+
+        if(NewsModel::IsPost()){
+            $article->title = $_POST['title'];
+            $article->text = $_POST['text'];
+            if(empty($article->title)){
+                $content = array( "$article->title" => '', "$article->text" => $_POST['text']);
                 echo "Введите заголовок новости";
             }else{
-                if(News::addNew($_POST['title'], $_POST['text'])){
+                if(NewsModel::insert($_POST['title'], $_POST['text'])){
                     header('Location: index.php?ctrl=AdminNews&act=All');
                 }
                 $content = array( 'title' => $_POST['title'], 'text' => $_POST['text']);
             }
         }else{
-            $content = array( 'title' => '', 'text' => '');
+            $content = array( 'title' => "", 'text' => "");
         }
-        
-        
+
+        echo "<pre>";
+        var_dump($data);
+        echo "</pre>";
+        die();
+
         $view = new View();
         $view->content = $content;
         $view->display('adminnews/new.php');
@@ -46,14 +54,14 @@ class NewsController
 
     public function actionUpdate()
     {
-        if(News::IsGet()){
+        if(NewsModel::IsGet()){
             $id = $_GET['id'];
-            $item = News::getOne($id);
+            $item = NewsModel::findOneByPk($id);
         }
 
-        if(News::IsPost()){
+        if(NewsModel::IsPost()){
             if(isset($_POST['submit'])){
-                if(News::updateNews($_POST['id'], $_POST['title'], $_POST['text'])){
+                if(NewsModel::update($_POST['id'], $_POST['title'], $_POST['text'])){
                     header('Location: index.php?ctrl=AdminNews&act=All');
                     die();
                 }
@@ -61,7 +69,7 @@ class NewsController
                 $item->title  = $_POST['title'];
                 $item->text = $_POST['text'];
             }elseif(isset($_POST['delete'])) {
-                if(News::deleteNews($_POST['id'])){
+                if(NewsModel::delete($_POST['id'])){
                     header('Location: index.php?ctrl=AdminNews&act=All');
                     die();
                 }

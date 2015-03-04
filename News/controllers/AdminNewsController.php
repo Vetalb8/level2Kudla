@@ -4,7 +4,7 @@ class AdminNewsController
 {
     public function actionAll()
     {
-        $items = News::getAll();
+        $items = NewsModel::findAll();
         include __DIR__ . '/../views/adminnews/all.php';
     }
 }

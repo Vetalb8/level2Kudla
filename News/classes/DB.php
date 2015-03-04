@@ -2,58 +2,38 @@
 
 class DB
 {
+    private $dbh;
+
+    private $className = 'stdClass';
+
+    public function setClassName($className)
+    {
+        $this->className = $className;
+    }
+
     public function __construct()
     {
-        mysql_connect('localhost', 'root', 'root');
-        mysql_select_db('news');
-
+        // создаем объект ПДО связь с БД
+        $this->dbh = new PDO('mysql:dbname=news;host=localhost', 'root', 'root');
     }
 
-    public function queryAll($sql, $class = 'stdClass' )
+    public function query($sql, $params = [])
     {
-        mysql_query("SET NAMES utf8");
-        $res = mysql_query($sql);
-        if (false === $res){
-            return  false;
-        }
-        $ret=[];
-        while($row = mysql_fetch_object($res, $class)){
-            $ret[] = $row;
-        }
-        return $ret;
+        // подгатавливаем запрос
+        $sth = $this->dbh->prepare($sql);
+        // выполнить запрос с указ параметрами
+        $sth->execute($params);
+        // получаем все строки с указанного запроса
+        return $sth->fetchAll(PDO::FETCH_CLASS, $this->className);
     }
 
-    public function queryOne($sql, $class = 'stdClass')
+    public function execute($sql, $params = [])
     {
-        return $this->queryAll($sql, $class)[0];
-    }
+        // подгатавливаем запрос
+        $sth = $this->dbh->prepare($sql);
+        // выполнить запрос с указ параметрами
+        return $sth->execute($params);
+        // получаем все строки с указанного запроса
 
-    public function queryNew($sql)
-    {
-        mysql_query("SET NAMES utf8");
-
-        $res = mysql_query($sql);
-
-        if (false === $res){
-            return  false;
-        }
-        return true;
-    }
-
-    public function queryUpdate($sql)
-    {
-        mysql_query("SET NAMES utf8");
-        //echo "$sql";die();
-        $res = mysql_query($sql);
-
-        if (false === $res){
-            return  false;
-        }
-        return true;
-    }
-
-    public function queryDelete($sql)
-    {
-        return $this->queryUpdate($sql);
     }
 }

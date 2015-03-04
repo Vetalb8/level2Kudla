@@ -1,54 +1,99 @@
 <?php
 
-abstract class AbstractModel implements IModel {
+abstract class AbstractModel
+{
+    static protected $table;
 
-    protected static $table;
-    protected static $class;
+    protected $data = [];
 
-    public static function getAll()
+    public function __set($k, $v)
     {
-        $db = new DB;
+        $this->data[$k] = $v;
+    }
+
+    public function __get($k)
+    {
+        return $this->data[$k];
+    }
+
+    public static function findAll()
+    {
+        $class = get_called_class();
         $sql = 'SELECT * FROM ' . static::$table;
-        return $db->queryAll($sql, static::$class);
+        $db = new DB();
+        $db->setClassName($class);
+        $db->query('SET NAMES utf8');
+        return $db->query($sql);
     }
 
-    public static function getOne($id)
+    public static function findOneByPk($id)
     {
-        $db = new DB;
-        $sql = 'SELECT * FROM ' . static::$table . ' Where id =' . $id;
-        return $db->queryOne($sql, static::$class);
+        $class = get_called_class();
+        $sql = 'SELECT * FROM ' . static::$table . ' WHERE id=:id';
+        $db = new DB();
+        $db->setClassName($class);
+        $db->query('SET NAMES utf8');
+        return $db->query($sql, [':id' => $id ])[0];
     }
 
-    public static function addNew($title, $text)
+    public function insert()
     {
-        $db = new DB;
-        $sql = "INSERT INTO " . static::$table . " (title, text)
-                        VALUES ('$title', '$text')";
+        $cols = array_keys($this->data);
+        $data = [];
+        foreach ($cols as $col) {
+            $data[':' . $col] = $this->data[$col];
+        }
 
-        return $db->queryNew($sql);
+        $sql = '
+            INSERT INTO ' . static::$table . ' 
+            (' . implode(', ', $cols). ') 
+            VALUES 
+            (' . implode(', ', array_keys($data)). ')
+            ';
+
+        echo "$sql";die();
+        /*
+        echo "<pre>";
+        var_dump($data);
+        die();
+        echo "</pre>";
+        */
+
+        $db = new DB();
+        $db->execute($sql, $data);
     }
 
-    public static function updateNews($id, $title, $text)
+    public function update()
     {
-        //Проверка
-        //if (!$id)
-        //return false;
-        //if ($title == '')
-        //return false;
+        $cols = array_keys($this->data);
+        $data = [];
 
-        $db = new DB;
-        $sql = "UPDATE " . static::$table . " SET title = '$title', text = '$text'
-                        WHERE id = '$id'";
+        foreach ($cols as $col) {
+            $data[':' . $col] = $this->data[$col];
+        }
 
-        return $db->queryUpdate($sql);
+
+        $sql = "UPDATE " . static::$table . " 
+                SET title = :title, text = :text
+                WHERE id = :id";
+
+        $db = new DB();
+        $db->execute($sql, $data);
     }
-    
-    public static function deleteNews($id)
+
+    public function delete()
     {
-        $db = new DB;
-        $sql = "DELETE FROM " . static::$table . " WHERE id = '$id'";
-        
-        return $db->queryDelete($sql);
+        $cols = array_keys($this->data);
+        $data = [];
+        foreach ($cols as $col) {
+            $data[':' . $col] = $this->data[$col];
+        }
+
+        $sql = "DELETE FROM " . static::$table . "
+                WHERE id = :id";
+
+        $db = new DB();
+        $db->execute($sql, $data);
     }
 
     public static function IsPost(){
