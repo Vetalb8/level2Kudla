@@ -95,6 +95,7 @@ abstract class AbstractModel
 
     public function delete()
     {
+
         $cols = array_keys($this->data);
         $data = [];
         foreach ($cols as $col) {
@@ -102,7 +103,7 @@ abstract class AbstractModel
         }
 
         $sql = "DELETE FROM " . static::$table . "
-                WHERE id = :id";
+                WHERE " .implode($cols). "=" .implode(array_keys($data));
 
         $db = new DB();
         return $db->execute($sql, $data);
