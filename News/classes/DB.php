@@ -19,7 +19,7 @@ class DB
 
     public function query($sql, $params = [])
     {
-        
+
         // подгатавливаем запрос
         $sth = $this->dbh->prepare($sql);
         // выполнить запрос с указ параметрами
@@ -33,8 +33,12 @@ class DB
         // подгатавливаем запрос
         $sth = $this->dbh->prepare($sql);
         // выполнить запрос с указ параметрами
-        return $sth->execute($params);
-        // получаем все строки с указанного запроса
 
+        return $sth->execute($params);
+    }
+
+    public function lastInsertId()
+    {
+        return $this->dbh->lastInsertId();
     }
 }

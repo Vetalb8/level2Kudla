@@ -16,6 +16,11 @@ abstract class AbstractModel
         return $this->data[$k];
     }
 
+    public function __isset($k)
+    {
+        return isset($this->data[$k]);
+    }
+
     public static function findAll()
     {
         $class = get_called_class();
@@ -35,20 +40,21 @@ abstract class AbstractModel
         $db->query('SET NAMES utf8');
         return $db->query($sql, [':id' => $id ])[0];
     }
-    
+
     public static function findByColumn($column, $value)
     {
-        $class = get_called_class();
-        $sql = "SELECT * FROM " . static::$table . ' WHERE  :column = :value';
-        //echo $sql;die();
         $db = new DB();
-        $db->setClassName($class);
-        $db->query('SET NAMES utf8');
-        return $db->query($sql, [':column' => $column, ':value' => $value]);
-        
+        $db->setClassName(get_called_class());
+        $sql = 'SELECT * FROM ' . static::$table . ' WHERE ' . $column . '=:value';
+        $res = $db->query($sql, [':value' => $value ]);
+        if(empty($res)){
+            $e = new ModelException('Ничего не найдено...');
+            throw $e;
+        }
+        return $res;
     }
 
-    public function insert()
+    protected  function insert()
     {
         $cols = array_keys($this->data);
         $data = [];
@@ -63,33 +69,33 @@ abstract class AbstractModel
             (' . implode(', ', array_keys($data)). ')
             ';
 
-        //echo "$sql";die();
-        /*
-        echo "<pre>";
-        var_dump($data);
-        die();
-        echo "</pre>";
-        */
-
         $db = new DB();
-        return $db->execute($sql, $data);
+        $db->execute('SET NAMES utf8');
+        $db->execute($sql, $data);
+        $this->id = $db->lastInsertId();
     }
 
-    public function update()
+    protected  function update()
     {
-        $cols = array_keys($this->data);
+        $cols = [];
         $data = [];
-
-        foreach ($cols as $col) {
-            $data[':' . $col] = $this->data[$col];
+        foreach ($this->data as $k => $v)
+        {
+            $data[':' . $k] = $v;
+            if('id' == $k){
+                continue;
+            }
+            $cols[] = $k . '=:' . $k;
         }
 
-
-        $sql = "UPDATE " . static::$table . " 
-                SET title = :title, text = :text
-                WHERE id = :id";
+        $sql = '
+                UPDATE ' . static::$table . '
+                SET ' . implode(', ', $cols) . '
+                WHERE id=:id
+        ';
 
         $db = new DB();
+        $db->execute('SET NAMES utf8');
         return $db->execute($sql, $data);
     }
 
@@ -109,11 +115,13 @@ abstract class AbstractModel
         return $db->execute($sql, $data);
     }
 
-    public static function IsPost(){
-        return $_SERVER['REQUEST_METHOD'] == 'POST';
-    }
-
-    public static function IsGet(){
-        return $_SERVER['REQUEST_METHOD'] == 'GET';
+    public function save()
+    {
+        if(!isset($this->id))
+        {
+            $this->insert();
+        }else{
+            $this->update();
+        }
     }
 }
